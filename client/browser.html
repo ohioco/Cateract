@@ -1,119 +1,35 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Cateract Browser</title>
+<body style="margin:0;font-family:Arial;background:#0f0f0f;color:white;">
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #0f0f0f;
-  color: white;
-  overflow: hidden;
-}
-
-/* TOP BAR */
-#topbar {
-  display: flex;
-  padding: 10px;
-  background: #1c1c1c;
-}
-
-/* URL INPUT */
-#url {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  outline: none;
-}
-
-/* MAIN VIEW */
-#view {
-  width: 100%;
-  height: calc(100vh - 50px);
-  padding: 20px;
-  overflow: auto;
-  background: #111;
-}
-
-/* ACCOUNT PANEL */
-#account {
-  position: absolute;
-  top: 70px;
-  right: 10px;
-  width: 220px;
-  background: #1c1c1c;
-  padding: 10px;
-  border-radius: 10px;
-  font-size: 14px;
-}
-
-button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 8px;
-}
-</style>
-</head>
-
-<body>
-
-<!-- TOP BAR -->
-<div id="topbar">
-  <input id="url" placeholder="cat://home" onkeydown="handleKey(event)">
+<div style="display:flex;background:#1c1c1c;padding:8px;">
+  <input id="url" style="flex:1;padding:8px;" placeholder="cat://home">
+  <button onclick="go()">Go</button>
 </div>
 
-<!-- ACCOUNT PANEL -->
-<div id="account">
-  <div id="userInfo">Loading...</div>
-  <button onclick="logout()">Logout</button>
-</div>
+<div id="view" style="padding:20px;"></div>
 
-<!-- MAIN VIEW -->
-<div id="view">
-  <h2>Welcome to Cateract Browser</h2>
-  <p>Type cat://home and press Enter</p>
-</div>
+<div id="user" style="position:absolute;right:10px;top:60px;background:#222;padding:10px;"></div>
 
 <script>
 
-/* ---------------- LOAD USER ---------------- */
 async function loadUser(){
-  const res = await fetch("/api/me");
-  const data = await res.json();
+  const r = await fetch("/api/me");
+  const d = await r.json();
 
-  if(!data.loggedIn){
-    window.location.href = "/";
-  } else {
-    document.getElementById("userInfo").innerHTML = `
-      <b>${data.user.email}</b><br>
-      ${data.user.name || "No name"}
-    `;
-  }
+  document.getElementById("user").innerHTML =
+    d.loggedIn ? d.user.email : "Guest";
 }
 
-/* ---------------- CAT NAVIGATION ---------------- */
-async function go(url){
-  const res = await fetch("/api/cat?url=" + encodeURIComponent(url));
-  const data = await res.json();
+async function go(){
+  const url = document.getElementById("url").value;
 
-  document.getElementById("view").innerHTML = data.html;
+  const r = await fetch("/api/cat?url=" + encodeURIComponent(url));
+  const d = await r.json();
+
+  document.getElementById("view").innerHTML = d.html;
 }
 
-/* ---------------- ENTER KEY ---------------- */
-function handleKey(e){
-  if(e.key === "Enter"){
-    go(document.getElementById("url").value);
-  }
-}
-
-/* ---------------- LOGOUT ---------------- */
-async function logout(){
-  await fetch("/api/logout");
-  window.location.href = "/";
-}
-
-/* INIT */
 loadUser();
 
 </script>
