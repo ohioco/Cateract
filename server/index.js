@@ -66,3 +66,13 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Cateract running on port ${PORT}`);
 });
+
+// Session support 
+
+import session from "express-session";
+
+app.use(session({
+  secret: "cateract_secret",
+  resave: false,
+  saveUninitialized: true
+}));
