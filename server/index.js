@@ -46,7 +46,7 @@ app.get("/site/:name", (req, res) => {
 app.get("/site/home", (req, res) => {
   res.send(`
     <h1>Cateract Home</h1>
-    <p>Welcome to your private network</p>
+    <p>This is your main network hub</p>
   `);
 });
 
