@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cateract Login</title>
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: Arial;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .box {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>Login</h2>
+
+  <input id="u" placeholder="username">
+  <input id="p" placeholder="password" type="password">
+
+  <button onclick="login()">Login</button>
+</div>
+
+<script>
+async function login() {
+  const username = document.getElementById("u").value;
+  const password = document.getElementById("p").value;
+
+  const res = await fetch("/api/login", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ username, password })
+  });
+
+  const data = await res.json();
+
+  if (data.ok) {
+    window.location.href = "/";
+  } else {
+    alert("Wrong login");
+  }
+}
+</script>
+
+</body>
+</html>
