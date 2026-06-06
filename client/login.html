@@ -1,55 +1,50 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Cateract Login</title>
-</head>
-
 <body style="background:#111;color:white;font-family:Arial;text-align:center;padding-top:80px;">
 
-<h2>Cateract Account</h2>
+<h2>Cateract Login</h2>
 
 <input id="email" placeholder="email"><br><br>
 <input id="password" type="password" placeholder="password"><br><br>
 
-<input id="name" placeholder="full name"><br><br>
-<input id="dob" placeholder="date of birth"><br><br>
+<input id="name" placeholder="name"><br><br>
+<input id="dob" placeholder="dob"><br><br>
 
 <button onclick="register()">Register</button>
 <button onclick="login()">Login</button>
 
 <script>
 async function register(){
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const name = document.getElementById("name").value;
-  const dob = document.getElementById("dob").value;
-
-  const res = await fetch("/api/register", {
+  await fetch("/api/register", {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ email, password, name, dob })
+    body: JSON.stringify({
+      email:email.value,
+      password:password.value,
+      name:name.value,
+      dob:dob.value
+    })
   });
 
-  const data = await res.json();
-  alert(data.ok ? "Account created" : data.error);
+  alert("Registered");
 }
 
 async function login(){
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
   const res = await fetch("/api/login", {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({
+      email:email.value,
+      password:password.value
+    })
   });
 
   const data = await res.json();
 
   if(data.ok){
-    window.location.href = "/dashboard.html";
+    window.location.href = "/browser.html";
   } else {
-    alert("Login failed");
+    alert("Failed");
   }
 }
 </script>
