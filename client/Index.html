@@ -61,14 +61,15 @@ function resolveCat(url) {
     const path = url.replace("cat://", "");
     return "/" + path;
   }
-
-  // fallback normal URL
-  return url;
-}
-
 function go() {
-  const input = document.getElementById("url").value;
-  const finalUrl = resolveCat(input);
+  const input = document.getElementById("url").value.trim();
+
+  if (!input) return;
+
+  const finalUrl = input.startsWith("cat://")
+    ? "/" + input.replace("cat://", "")
+    : input;
+
   document.getElementById("frame").src = finalUrl;
 }
 
