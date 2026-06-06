@@ -59,9 +59,19 @@ function go() {
     path = input;
   }
 
-  document.getElementById("frame").src = path;
+  const frame = document.getElementById("frame");
+
+  // force full reload (IMPORTANT FIX)
+  frame.src = "about:blank";
+
+  setTimeout(() => {
+    frame.src = path;
+  }, 50);
 }
 </script>
+
+  document.getElementById("frame").src = path;
+}
 
 </body>
 </html>
