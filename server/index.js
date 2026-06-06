@@ -5,7 +5,7 @@ import fs from "fs";
 const app = express();
 app.use(express.json());
 
-/* ---------------- DATABASE ---------------- */
+/* ---------------- DB ---------------- */
 const DB_FILE = "./data.json";
 
 function loadDB() {
@@ -18,25 +18,38 @@ function saveDB(db) {
 
 /* ---------------- SESSION ---------------- */
 app.use(session({
-  secret: "cateract_core_secret",
+  secret: "cateract_core",
   resave: false,
   saveUninitialized: false
 }));
 
-/* ---------------- AUTH SYSTEM ---------------- */
+/* ---------------- HELPERS ---------------- */
+function getUser(db, email) {
+  if (!db.users[email]) {
+    db.users[email] = {
+      email,
+      password: "",
+      name: "",
+      dob: "",
+      drive: {},
+      docs: {},
+      sites: {}
+    };
+  }
+  return db.users[email];
+}
 
-// REGISTER (REAL USER PROFILE)
+/* ---------------- AUTH ---------------- */
+
+// REGISTER
 app.post("/api/register", (req, res) => {
+  const db = loadDB();
   const { email, password, name, dob } = req.body;
 
-  const db = loadDB();
-
-  if (!email || !password) {
-    return res.json({ ok: false, error: "Missing fields" });
-  }
+  if (!email || !password) return res.json({ ok: false });
 
   if (db.users[email]) {
-    return res.json({ ok: false, error: "User already exists" });
+    return res.json({ ok: false, error: "User exists" });
   }
 
   db.users[email] = {
@@ -44,19 +57,20 @@ app.post("/api/register", (req, res) => {
     password,
     name: name || "",
     dob: dob || "",
-    createdAt: Date.now()
+    drive: {},
+    docs: {},
+    sites: {}
   };
 
   saveDB(db);
-
   res.json({ ok: true });
 });
 
 // LOGIN
 app.post("/api/login", (req, res) => {
+  const db = loadDB();
   const { email, password } = req.body;
 
-  const db = loadDB();
   const user = db.users[email];
 
   if (user && user.password === password) {
@@ -64,17 +78,10 @@ app.post("/api/login", (req, res) => {
     return res.json({ ok: true });
   }
 
-  res.json({ ok: false, error: "Invalid login" });
+  res.json({ ok: false });
 });
 
-// LOGOUT
-app.get("/api/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.json({ ok: true });
-  });
-});
-
-// GET USER PROFILE
+// ME
 app.get("/api/me", (req, res) => {
   const db = loadDB();
 
@@ -89,48 +96,127 @@ app.get("/api/me", (req, res) => {
     user: {
       email: user.email,
       name: user.name,
-      dob: user.dob,
-      createdAt: user.createdAt
+      dob: user.dob
     }
   });
 });
 
-/* ---------------- LOGIN PROTECTION ---------------- */
-function requireLogin(req, res, next) {
-  if (!req.session.user) {
-    return res.redirect("/");
-  }
-  next();
-}
-
-/* ---------------- PAGES ---------------- */
-
-// login page
-app.get("/", (req, res) => {
-  if (req.session.user) {
-    return res.redirect("/dashboard.html");
-  }
-  res.sendFile(process.cwd() + "/client/login.html");
+// LOGOUT
+app.get("/api/logout", (req, res) => {
+  req.session.destroy(() => res.json({ ok: true }));
 });
 
-// protected dashboard
-app.get("/dashboard.html", requireLogin, (req, res) => {
-  res.sendFile(process.cwd() + "/client/dashboard.html");
-});
+/* ---------------- CAT SYSTEM ---------------- */
+app.get("/api/cat", (req, res) => {
+  const db = loadDB();
+  const url = req.query.url;
 
-/* ---------------- STATIC FILES ---------------- */
-app.use(express.static("client"));
+  if (!url) return res.json({ html: "Invalid" });
 
-/* ---------------- STATUS ---------------- */
-app.get("/api/status", (req, res) => {
-  res.json({
-    system: "Cateract Phase 1 Core",
-    users: Object.keys(loadDB().users).length,
-    online: true
+  const parts = url.replace("cat://", "").split("/");
+  const route = parts[0];
+
+  // HOME
+  if (route === "home") {
+    return res.json({
+      html: "<h1>🏠 Cateract Home</h1><p>Welcome to your OS</p>"
+    });
+  }
+
+  // SEARCH (basic)
+  if (route === "search") {
+    const q = parts.slice(1).join(" ");
+    return res.json({
+      html: `<h2>Search: ${q}</h2>`
+    });
+  }
+
+  return res.json({
+    html: "<h1>Unknown cat route</h1>"
   });
 });
 
+/* ---------------- DRIVE ---------------- */
+app.post("/api/drive/save", (req, res) => {
+  const db = loadDB();
+  const user = req.session.user;
+
+  if (!user) return res.json({ ok: false });
+
+  const { name, content } = req.body;
+
+  db.users[user].drive[name] = content;
+
+  saveDB(db);
+  res.json({ ok: true });
+});
+
+app.get("/api/drive/list", (req, res) => {
+  const db = loadDB();
+  const user = req.session.user;
+
+  res.json(db.users[user]?.drive || {});
+});
+
+/* ---------------- DOCS ---------------- */
+app.post("/api/docs/save", (req, res) => {
+  const db = loadDB();
+  const user = req.session.user;
+
+  const { id, content } = req.body;
+
+  db.users[user].docs[id] = content;
+
+  saveDB(db);
+  res.json({ ok: true });
+});
+
+app.get("/api/docs/:id", (req, res) => {
+  const db = loadDB();
+  const user = req.session.user;
+
+  res.json({
+    content: db.users[user]?.docs?.[req.params.id] || ""
+  });
+});
+
+/* ---------------- SITE BUILDER ---------------- */
+app.post("/api/sites/create", (req, res) => {
+  const db = loadDB();
+  const user = req.session.user;
+
+  const { name, blocks } = req.body;
+
+  db.users[user].sites[name] = { blocks };
+
+  saveDB(db);
+  res.json({ ok: true });
+});
+
+app.get("/site/:user/:name", (req, res) => {
+  const db = loadDB();
+
+  const site = db.users?.[req.params.user]?.sites?.[req.params.name];
+
+  if (!site) return res.send("404");
+
+  const html = site.blocks.map(b => {
+    if (b.type === "text") return `<p>${b.value}</p>`;
+    if (b.type === "title") return `<h1>${b.value}</h1>`;
+    return "";
+  }).join("");
+
+  res.send(`
+    <body style="background:#111;color:white;font-family:Arial;padding:20px;">
+      ${html}
+    </body>
+  `);
+});
+
+/* ---------------- STATIC ---------------- */
+app.use(express.static("client"));
+
 /* ---------------- START ---------------- */
 app.listen(3000, "0.0.0.0", () => {
-  console.log("Cateract Phase 1 running");
+  console.log("Cateract running");
 });
