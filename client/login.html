@@ -25,7 +25,9 @@ async function login(){
   });
 
   const d = await r.json();
-  if(d.ok) location.href="/dashboard.html";
+  if (data.ok) {
+  window.location.href = "/dashboard.html";
+  }
 }
 
 async function register(){
