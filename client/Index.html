@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cateract Browser</title>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: #111;
+      color: white;
+    }
+
+    #bar {
+      display: flex;
+      padding: 10px;
+      background: #222;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px;
+      margin-left: 10px;
+    }
+
+    iframe {
+      width: 100%;
+      height: calc(100vh - 60px);
+      border: none;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+
+<div id="bar">
+  <input id="url" placeholder="cat://site/test">
+  <button onclick="go()">Go</button>
+</div>
+
+<iframe id="frame"></iframe>
+
+<script>
+function resolveCat(url) {
+  if (url.startsWith("cat://")) {
+    const path = url.replace("cat://", "");
+    return "http://192.168.8.198:3000/" + path;
+  }
+  return url;
+}
+
+function go() {
+  const input = document.getElementById("url").value;
+  const finalUrl = resolveCat(input);
+  document.getElementById("frame").src = finalUrl;
+}
+</script>
+
+</body>
+</html>
