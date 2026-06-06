@@ -101,8 +101,6 @@ app.listen(PORT, "0.0.0.0", () => {
 
 // Session support 
 
-import session from "express-session";
-
 app.use(session({
   secret: "cateract_secret",
   resave: false,
