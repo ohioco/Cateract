@@ -15,6 +15,7 @@
       display: flex;
       padding: 10px;
       background: #1c1c1c;
+      gap: 8px;
     }
 
     input {
@@ -26,7 +27,6 @@
 
     button {
       padding: 10px;
-      margin-left: 10px;
       cursor: pointer;
     }
 
@@ -42,13 +42,34 @@
 <body>
 
 <div id="bar">
+  <button onclick="back()">←</button>
+  <button onclick="forward()">→</button>
+
   <input id="url" placeholder="cat://site/home">
+
   <button onclick="go()">Go</button>
 </div>
 
 <iframe id="frame"></iframe>
 
 <script>
+let historyStack = [];
+let historyIndex = -1;
+
+function load(url) {
+  const frame = document.getElementById("frame");
+
+  frame.src = "about:blank";
+
+  setTimeout(() => {
+    frame.src = url + "?t=" + Date.now();
+  }, 30);
+
+  historyStack = historyStack.slice(0, historyIndex + 1);
+  historyStack.push(url);
+  historyIndex++;
+}
+
 function go() {
   let input = document.getElementById("url").value.trim();
   if (!input) return;
@@ -57,14 +78,21 @@ function go() {
     ? "/" + input.replace("cat://", "")
     : input;
 
-  const frame = document.getElementById("frame");
+  load(path);
+}
 
-  // FORCE FULL REFRESH (fixes stuck page issue)
-  frame.src = "about:blank";
+function back() {
+  if (historyIndex > 0) {
+    historyIndex--;
+    load(historyStack[historyIndex]);
+  }
+}
 
-  setTimeout(() => {
-    frame.src = path + "?t=" + Date.now(); // cache buster
-  }, 50);
+function forward() {
+  if (historyIndex < historyStack.length - 1) {
+    historyIndex++;
+    load(historyStack[historyIndex]);
+  }
 }
 </script>
 
