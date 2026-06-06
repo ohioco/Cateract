@@ -10,72 +10,57 @@
       color: white;
     }
 
-    #topbar {
+    #bar {
       display: flex;
       padding: 10px;
       background: #1c1c1c;
-      gap: 10px;
     }
 
     input {
       flex: 1;
       padding: 10px;
-      font-size: 14px;
       border: none;
       outline: none;
     }
 
     button {
-      padding: 10px 15px;
-      cursor: pointer;
+      padding: 10px;
+      margin-left: 10px;
     }
 
-    #frame {
+    iframe {
       width: 100%;
       height: calc(100vh - 60px);
       border: none;
       background: white;
-    }
-
-    .label {
-      font-size: 12px;
-      opacity: 0.7;
-      margin-left: 10px;
     }
   </style>
 </head>
 
 <body>
 
-<div id="topbar">
-  <input id="url" placeholder="cat://site/test">
+<div id="bar">
+  <input id="url" placeholder="cat://site/home">
   <button onclick="go()">Go</button>
 </div>
 
 <iframe id="frame"></iframe>
 
 <script>
-function resolveCat(url) {
-  // Handle custom protocol
-  if (url.startsWith("cat://")) {
-    const path = url.replace("cat://", "");
-    return "/" + path;
-  }
 function go() {
-  const input = document.getElementById("url").value.trim();
-
+  let input = document.getElementById("url").value.trim();
   if (!input) return;
 
-  const finalUrl = input.startsWith("cat://")
-    ? "/" + input.replace("cat://", "")
-    : input;
+  let path;
 
-  document.getElementById("frame").src = finalUrl;
+  if (input.startsWith("cat://")) {
+    path = "/" + input.replace("cat://", "");
+  } else {
+    path = input;
+  }
+
+  document.getElementById("frame").src = path;
 }
-
-// auto-load home
-document.getElementById("url").value = "cat://site/home";
-go();
 </script>
 
 </body>
