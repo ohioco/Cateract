@@ -6,6 +6,51 @@ app.use(express.json());
 
 const sites = {};
 
+import session from "express-session";
+
+app.use(session({
+  secret: "cateract_secret_key",
+  resave: false,
+  saveUninitialized: true
+}));
+
+const users = {};
+
+app.post("/api/register", (req, res) => {
+  const { username, password } = req.body;
+  users[username] = password;
+  res.json({ ok: true });
+});
+
+app.post("/api/login", (req, res) => {
+  const { username, password } = req.body;
+
+  if (users[username] === password) {
+    req.session.user = username;
+    return res.json({ ok: true });
+  }
+
+  res.json({ ok: false });
+});
+
+app.get("/api/me", (req, res) => {
+  if (!req.session.user) {
+    return res.json({ loggedIn: false });
+  }
+
+  res.json({
+    loggedIn: true,
+    user: req.session.user
+  });
+});
+
+app.get("/", (req, res, next) => {
+  if (!req.session.user) {
+    return res.sendFile(process.cwd() + "/client/login.html");
+  }
+  next();
+});
+
 // Serve browser UI
 app.use(express.static("client"));
 
