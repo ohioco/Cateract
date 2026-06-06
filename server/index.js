@@ -4,10 +4,12 @@ const app = express();
 
 app.use(express.json());
 
-// This serves your browser UI
+// Serve browser UI
 app.use(express.static("client"));
 
-// Core “Cateract system”
+/* -----------------------------
+   Cateract dynamic sites
+------------------------------*/
 app.get("/site/:name", (req, res) => {
   const name = req.params.name;
 
@@ -42,7 +44,7 @@ app.get("/site/:name", (req, res) => {
   `);
 });
 
-//Cateract Home
+/* Home */
 app.get("/site/home", (req, res) => {
   res.send(`
     <h1>Cateract Home</h1>
@@ -50,7 +52,7 @@ app.get("/site/home", (req, res) => {
   `);
 });
 
-// Status check
+/* API */
 app.get("/api/status", (req, res) => {
   res.json({
     system: "Cateract Core",
@@ -58,6 +60,7 @@ app.get("/api/status", (req, res) => {
   });
 });
 
+/* Start server */
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
