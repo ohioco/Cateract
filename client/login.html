@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Login</title>
+  <title>Cateract Login</title>
 </head>
+
 <body style="background:#111;color:white;font-family:Arial;text-align:center;padding-top:100px;">
 
 <h2>Cateract Login</h2>
@@ -14,27 +15,47 @@
 <button onclick="register()">Register</button>
 
 <script>
-async function login(){
-  const email = email.value;
-  const password = pass.value;
+async function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("pass").value;
 
-  const r = await fetch("/api/login", {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
+  const res = await fetch("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password })
   });
 
-  const d = await r.json();
+  const data = await res.json();
+
   if (data.ok) {
-  window.location.href = "/dashboard.html";
+    window.location.href = "/dashboard.html";
+  } else {
+    alert(data.error || "Login failed");
   }
 }
 
-async function register(){
-  const email = email.value;
-  const password = pass.value;
+async function register() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("pass").value;
 
-  await fetch("/api/register", {
+  const res = await fetch("/api/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
+
+  const data = await res.json();
+
+  if (data.ok) {
+    alert("Account created! Now login.");
+  } else {
+    alert(data.error || "Register failed");
+  }
+}
+</script>
+
+</body>
+</html>  await fetch("/api/register", {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({ email, password })
