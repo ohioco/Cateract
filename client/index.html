@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Cateract Browser</title>
+
   <style>
     body {
       margin: 0;
@@ -26,6 +27,7 @@
     button {
       padding: 10px;
       margin-left: 10px;
+      cursor: pointer;
     }
 
     iframe {
@@ -51,27 +53,20 @@ function go() {
   let input = document.getElementById("url").value.trim();
   if (!input) return;
 
-  let path;
-
-  if (input.startsWith("cat://")) {
-    path = "/" + input.replace("cat://", "");
-  } else {
-    path = input;
-  }
+  let path = input.startsWith("cat://")
+    ? "/" + input.replace("cat://", "")
+    : input;
 
   const frame = document.getElementById("frame");
 
-  // force full reload (IMPORTANT FIX)
+  // FORCE FULL REFRESH (fixes stuck page issue)
   frame.src = "about:blank";
 
   setTimeout(() => {
-    frame.src = path;
+    frame.src = path + "?t=" + Date.now(); // cache buster
   }, 50);
 }
 </script>
-
-  document.getElementById("frame").src = path;
-}
 
 </body>
 </html>
