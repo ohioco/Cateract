@@ -1,3 +1,8 @@
-{
-  "users": {}
+users[email] = {
+  password,
+  name,
+  dob,
+  drive: {},
+  docs: {},
+  sites: {}
 }
