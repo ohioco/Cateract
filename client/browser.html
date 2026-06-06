@@ -9,47 +9,113 @@ body {
   font-family: Arial;
   background: #0f0f0f;
   color: white;
+  overflow: hidden;
 }
 
-#bar {
+/* TOP BAR */
+#topbar {
   display: flex;
   padding: 10px;
   background: #1c1c1c;
 }
 
-input {
+/* URL INPUT */
+#url {
   flex: 1;
   padding: 10px;
+  border: none;
+  outline: none;
+}
+
+/* MAIN VIEW */
+#view {
+  width: 100%;
+  height: calc(100vh - 50px);
+  padding: 20px;
+  overflow: auto;
+  background: #111;
+}
+
+/* ACCOUNT PANEL */
+#account {
+  position: absolute;
+  top: 70px;
+  right: 10px;
+  width: 220px;
+  background: #1c1c1c;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 14px;
 }
 
 button {
-  margin-left: 10px;
-}
-
-#view {
-  padding: 20px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="bar">
-  <input id="url" placeholder="cat://home">
-  <button onclick="go()">Go</button>
+<!-- TOP BAR -->
+<div id="topbar">
+  <input id="url" placeholder="cat://home" onkeydown="handleKey(event)">
 </div>
 
-<div id="view"></div>
+<!-- ACCOUNT PANEL -->
+<div id="account">
+  <div id="userInfo">Loading...</div>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- MAIN VIEW -->
+<div id="view">
+  <h2>Welcome to Cateract Browser</h2>
+  <p>Type cat://home and press Enter</p>
+</div>
 
 <script>
-async function go() {
-  const url = document.getElementById("url").value;
 
+/* ---------------- LOAD USER ---------------- */
+async function loadUser(){
+  const res = await fetch("/api/me");
+  const data = await res.json();
+
+  if(!data.loggedIn){
+    window.location.href = "/";
+  } else {
+    document.getElementById("userInfo").innerHTML = `
+      <b>${data.user.email}</b><br>
+      ${data.user.name || "No name"}
+    `;
+  }
+}
+
+/* ---------------- CAT NAVIGATION ---------------- */
+async function go(url){
   const res = await fetch("/api/cat?url=" + encodeURIComponent(url));
   const data = await res.json();
 
   document.getElementById("view").innerHTML = data.html;
 }
+
+/* ---------------- ENTER KEY ---------------- */
+function handleKey(e){
+  if(e.key === "Enter"){
+    go(document.getElementById("url").value);
+  }
+}
+
+/* ---------------- LOGOUT ---------------- */
+async function logout(){
+  await fetch("/api/logout");
+  window.location.href = "/";
+}
+
+/* INIT */
+loadUser();
+
 </script>
 
 </body>
