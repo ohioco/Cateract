@@ -108,7 +108,6 @@ app.use(session({
 }));
 
 
-const users = {};
 
 app.post("/api/register", (req, res) => {
   const { username, password } = req.body;
