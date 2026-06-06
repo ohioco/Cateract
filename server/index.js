@@ -115,7 +115,7 @@ app.get("/api/search", (req, res) => {
 });
 
 /* ---------------- STATIC ---------------- */
-app.use(express.static("client"));
+app.use("/public", express.static("client"));
 
 /* ---------------- LOGIN GATE ---------------- */
 app.get("/", (req, res, next) => {
@@ -128,4 +128,22 @@ app.get("/", (req, res, next) => {
 /* ---------------- START ---------------- */
 app.listen(3000, "0.0.0.0", () => {
   console.log("Cateract running");
+});
+
+// middleware
+
+app.get("/dashboard.html", requireLogin, (req, res) => {
+  res.sendFile(process.cwd() + "/client/dashboard.html");
+});
+
+app.get("/builder.html", requireLogin, (req, res) => {
+  res.sendFile(process.cwd() + "/client/builder.html");
+});
+
+app.get("/dashboard.html", requireLogin, (req, res) => {
+  res.sendFile(process.cwd() + "/client/dashboard.html");
+});
+
+app.get("/builder.html", requireLogin, (req, res) => {
+  res.sendFile(process.cwd() + "/client/builder.html");
 });
