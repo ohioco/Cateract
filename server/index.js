@@ -154,3 +154,68 @@ app.get("/dashboard.html", requireLogin, (req, res) => {
 app.get("/builder.html", requireLogin, (req, res) => {
   res.sendFile(process.cwd() + "/client/builder.html");
 });
+
+function parseCat(url) {
+  return url.replace("cat://", "").split("/");
+}
+
+app.get("/api/cat", (req, res) => {
+  const url = req.query.url;
+
+  if (!url || !url.startsWith("cat://")) {
+    return res.json({ ok: false, error: "Invalid cat url" });
+  }
+
+  const [_, route, ...rest] = url.replace("cat://", "").split("/");
+
+  const db = loadDB();
+
+  // HOME
+  if (route === "home") {
+    return res.json({
+      title: "Cateract Home",
+      html: "<h1>Welcome to Cateract OS</h1>"
+    });
+  }
+
+  // SEARCH
+  if (route === "search") {
+    const q = rest.join(" ");
+
+    const results = Object.values(db.sites)
+      .filter(s => s.name.includes(q));
+
+    return res.json({
+      title: "Search",
+      html: `<h2>Results for ${q}</h2>` +
+        results.map(r => `<p>${r.name}</p>`).join("")
+    });
+  }
+
+  // USER SITE
+  if (route === "site") {
+    const user = rest[0];
+    const name = rest[1];
+
+    const id = `${user}:${name}`;
+    const site = db.sites[id];
+
+    if (!site) {
+      return res.json({
+        title: "404",
+        html: "<h1>Site not found</h1>"
+      });
+    }
+
+    return res.json({
+      title: site.name,
+      html: site.content
+    });
+  }
+
+  res.json({
+    title: "Error",
+    html: "<h1>Unknown cat route</h1>"
+  });
+});
+
