@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Cateract Browser</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0f0f0f;
+  color: white;
+}
+
+#bar {
+  display: flex;
+  padding: 10px;
+  background: #1c1c1c;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+}
+
+button {
+  margin-left: 10px;
+}
+
+#view {
+  padding: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="bar">
+  <input id="url" placeholder="cat://home">
+  <button onclick="go()">Go</button>
+</div>
+
+<div id="view"></div>
+
+<script>
+async function go() {
+  const url = document.getElementById("url").value;
+
+  const res = await fetch("/api/cat?url=" + encodeURIComponent(url));
+  const data = await res.json();
+
+  document.getElementById("view").innerHTML = data.html;
+}
+</script>
+
+</body>
+</html>
