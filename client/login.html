@@ -47,21 +47,10 @@ async function register() {
   const data = await res.json();
 
   if (data.ok) {
-    alert("Account created! Now login.");
+    alert("Registered! Now login.");
   } else {
     alert(data.error || "Register failed");
   }
-}
-</script>
-
-</body>
-</html>  await fetch("/api/register", {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ email, password })
-  });
-
-  alert("Registered!");
 }
 </script>
 
