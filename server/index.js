@@ -16,6 +16,13 @@ function saveDB(db) {
   fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
 }
 
+function requireLogin(req, res, next) {
+  if (!req.session.user) {
+    return res.redirect("/");
+  }
+  next();
+}
+
 /* ---------------- SESSION ---------------- */
 app.use(session({
   secret: "cateract_secret",
