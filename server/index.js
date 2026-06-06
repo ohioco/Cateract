@@ -42,6 +42,13 @@ app.get("/site/:name", (req, res) => {
   `);
 });
 
+//Cateract Home
+app.get("/site/home", (req, res) => {
+  res.send(`
+    <h1>Cateract Home</h1>
+    <p>Welcome to your private network</p>
+  `);
+});
 
 // Status check
 app.get("/api/status", (req, res) => {
